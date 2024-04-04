@@ -13,6 +13,7 @@ Server::Server(QObject *parent)
 {
     connect(this, &Server::newConnection, this, &Server::onNewConnection);
     listen(QHostAddress::Any, 8001);
+    fillResources();
 
 }
 
@@ -34,4 +35,11 @@ void Server::onNewConnection()
 
 void Server::sendAck()
 {
+
+}
+
+void Server::fillResources()
+{
+    resources.reset(new Resource);
+
 }
