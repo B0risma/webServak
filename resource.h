@@ -1,12 +1,20 @@
 #pragma once
 #include <QMap>
 #include <memory>
+
+enum ResourceType : quint8{
+    Ethernet,
+    Serial,
+    Text
+};
+
 //!Базовый класс данных с возможной вложенностью
 //! По сути JSONObject - может потом и заменю
 class Resource
 {
 public:
     Resource(Resource *parent = 0);
+    ResourceType type = ResourceType::Text;
     //!Удаление объекта, если существовал
     bool deleteRes(const QStringList &path);
     //!Вставка только в этот уровень
