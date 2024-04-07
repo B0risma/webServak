@@ -2,7 +2,7 @@
 #include "resource.h"
 
 #include <QTcpServer>
-#include <memory>
+#include <QSharedPointer>
 
 class Server : public QTcpServer
 {
@@ -17,7 +17,7 @@ public slots:
 
 private:
     void fillResources();
-    std::weak_ptr<Resource> getResource(QStringList path);
-    std::shared_ptr<Resource> resources;
+    QWeakPointer<Resource> getResource(QStringList path);
+    QSharedPointer<Resource> resources;
 };
 

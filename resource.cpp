@@ -1,6 +1,10 @@
 #include "resource.h"
 #include <QJsonArray>
 #include <QDateTime>
+#include <ifaddrs.h>
+#include <iomanip>
+#include <ctime>
+
 
 Resource::Resource(const QString &resName) : name(resName)
 {
@@ -11,7 +15,7 @@ bool Resource::addRes(QStringList path, Resource *res)
     if(path.isEmpty()) return false;
     auto curLevel = path.first();
     path.removeFirst();
-    std::shared_ptr<Resource> &target = subResources[curLevel];
+    QSharedPointer<Resource> &target = subResources[curLevel];
     if(!target.get())
         target.reset(new Resource());
     if(!path.isEmpty())
@@ -23,9 +27,9 @@ bool Resource::addRes(QStringList path, Resource *res)
 }
 
 
-std::weak_ptr<Resource> Resource::getRes(QStringList path)
+QWeakPointer<Resource> Resource::getRes(QStringList path)
 {
-    std::weak_ptr<Resource> weak;
+    QWeakPointer<Resource> weak;
     if(path.isEmpty()){
         return  {};
     }
@@ -53,20 +57,26 @@ QJsonObject Resource::toJsonObject(bool allTree) const
 
 
 
+
+
 Date::Date() : Resource("time")
 {
 
 }
 
-QString Date::value() const
+QString Date::value(const QString &name) const
 {
-    return QDateTime::currentDateTime().toString();
+    const std::time_t now = time(nullptr);
+    return {asctime(std::localtime(&now))};
 }
 
 void Date::setValue(const QString &name, const QString &value)
 {
-    if(name == this->name){
-        system(QString("echo %1").arg(value).toUtf8().constData());
+    if(true){
+        timespec *tp;
+        clock_gettime(CLOCK_REALTIME, tp);
+        tp->tv_sec+=65;
+        clock_settime(CLOCK_REALTIME, tp);
     }
 }
 

@@ -1,20 +1,22 @@
 #include "webmanager.h"
 #include <QJsonDocument>
+#include <memory>
 
 QString WebManager::processRequest(const RequestI &request)
 {
-    std::weak_ptr<Resource> targetResource;
+    QSharedPointer<Resource> targetResource;
     QString ret = reply(NotFound, RequestI::UNKNOWN);
     if(request.URI.isEmpty()) targetResource = rootResource;
-    else targetResource = rootResource->getRes(request.URI);
-    if(!targetResource.expired()){
+    else targetResource = rootResource->getRes(request.URI).toStrongRef();
+    if(!targetResource.isNull()){
         switch (request.method) {
         case RequestI::GET:{
             ret = reply(Ok, RequestI::GET);
-            ret+=QString::fromLatin1(QJsonDocument(targetResource.lock()->toJsonObject()).toJson(QJsonDocument::JsonFormat::Indented));
+            ret+=QString::fromLatin1(QJsonDocument(targetResource->toJsonObject()).toJson(QJsonDocument::JsonFormat::Indented));
             break;
         }
-        case RequestI::POST:{
+        case RequestI::PATCH:{
+            targetResource->setValue("time", "time");
             break;
         }
         default:

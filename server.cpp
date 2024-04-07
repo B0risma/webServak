@@ -25,10 +25,9 @@ void Server::onNewConnection()
     qDebug() << req.toString() << req.URI;
     {QTextStream os(newClient);
     os.setAutoDetectUnicode(true);
-    std::shared_ptr<Resource> res;
-    if(!getResource(req.URI).expired())
-        res = getResource(req.URI).lock();
-    else res.reset(new Resource);
+    QSharedPointer<Resource> res =getResource(req.URI).toStrongRef();
+    if(res.isNull())
+         res.reset(new Resource);
 
     WebManager man(resources);
     qDebug() << man.processRequest(req);
@@ -52,7 +51,7 @@ void Server::fillResources()
 
 }
 
-std::weak_ptr<Resource> Server::getResource(QStringList path)
+QWeakPointer<Resource> Server::getResource(QStringList path)
 {
  if(path.isEmpty())
      return resources;

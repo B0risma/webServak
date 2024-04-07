@@ -11,7 +11,7 @@ public:
         Ok,
         NotFound
     };
-    WebManager(std::weak_ptr<Resource> targetRes) : rootResource(targetRes){};
+    WebManager(QWeakPointer<Resource> targetRes) : rootResource(targetRes){}
     constexpr const char* reply(const ReplyStat &stat, const RequestI::Method method) const{
         switch(stat){
         case Ok:
@@ -26,7 +26,7 @@ public:
     QString processRequest(const RequestI &request);
 
 
-    std::shared_ptr<Resource> rootResource;
+    QSharedPointer<Resource> rootResource;
 };
 
 #endif // WEBMANAGER_H

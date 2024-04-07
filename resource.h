@@ -27,8 +27,8 @@ public:
     bool addRes(QStringList path, Resource *res);
     //!Указатель на ресурс этого уровня
 //    const Resource &getRes(const QString &curPath) const;
-    std::weak_ptr<Resource> getRes(QStringList path);
-    QMap<QString, std::shared_ptr<Resource>> subResources;
+    QWeakPointer<Resource> getRes(QStringList path);
+    QMap<QString, QSharedPointer<Resource>> subResources;
     virtual QJsonObject toJsonObject(bool allTree = false) const;
 
     QString name = "Int";
