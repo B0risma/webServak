@@ -1,5 +1,6 @@
 #include "requesti.h"
 #include <QTextStream>
+#include <QMetaEnum>
 
 RequestI::RequestI(const QByteArray &data)
 {
@@ -14,11 +15,10 @@ RequestI::RequestI(const QByteArray &data)
     isValid = true;
     firstLine.remove(httpPos, firstLine.size() - httpPos);
     auto reqType = firstLine.split('/').value(0).remove(' ');
-    if(reqType == "GET")
-        method = GET;
-    else if(reqType == "POST")
-        method = POST;
-    else method = UNKNOWN;
+
+    QMetaEnum enumer = QMetaEnum::fromType<RequestI::Method>();
+    method = (Method)enumer.keyToValue(reqType.toUtf8().constData());
+
     firstLine.remove(reqType);
     firstLine.remove(' ');
     URI = firstLine.split('/', Qt::SplitBehaviorFlags::SkipEmptyParts);

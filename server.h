@@ -17,6 +17,7 @@ public slots:
 
 private:
     void fillResources();
-    std::unique_ptr<Resource> resources;
+    std::weak_ptr<Resource> getResource(QStringList path);
+    std::shared_ptr<Resource> resources;
 };
 

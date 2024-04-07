@@ -1,7 +1,7 @@
 QT -= gui
 QT+=network
 
-CONFIG += c++11 console
+CONFIG += c++14 console
 CONFIG -= app_bundle
 
 # You can make your code fail to compile if it uses deprecated APIs.
@@ -12,7 +12,8 @@ SOURCES += \
         main.cpp \
         requesti.cpp \
         resource.cpp \
-        server.cpp
+        server.cpp \
+        webmanager.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -22,4 +23,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     requesti.h \
     resource.h \
-    server.h
+    server.h \
+    webmanager.h
