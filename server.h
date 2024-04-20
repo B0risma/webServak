@@ -1,5 +1,6 @@
 #pragma once
 #include "resource.h"
+#include "webmanager.h"
 
 #include <QTcpServer>
 #include <QSharedPointer>
@@ -16,8 +17,8 @@ public slots:
 
 
 private:
-    void fillResources();
-    QWeakPointer<Resource> getResource(QStringList path);
-    QSharedPointer<Resource> resources;
+    Resource * fillResources();
+//    QWeakPointer<Resource> getResource(QStringList path);
+    WebManager manager;
 };
 

@@ -11,7 +11,11 @@ public:
         Ok,
         NotFound
     };
-    WebManager(QWeakPointer<Resource> targetRes) : rootResource(targetRes){}
+    WebManager(/*QWeakPointer<Resource> targetRes*/) {
+//        auto newRes = new Resource;
+//        *newRes= *(targetRes.toStrongRef());
+//        rootResource.reset(newRes);
+    }
     constexpr const char* reply(const ReplyStat &stat, const RequestI::Method method) const{
         switch(stat){
         case Ok:

@@ -13,7 +13,7 @@ Server::Server(QObject *parent)
 {
     connect(this, &Server::newConnection, this, &Server::onNewConnection);
     listen(QHostAddress::Any, 8001);
-    fillResources();
+    manager.rootResource.reset(fillResources());
 
 }
 
@@ -23,16 +23,10 @@ void Server::onNewConnection()
     newClient->waitForReadyRead();
     RequestI req(newClient->readAll());
     qDebug() << req.toString() << req.URI;
-    {QTextStream os(newClient);
+    QTextStream os(newClient);
     os.setAutoDetectUnicode(true);
-    QSharedPointer<Resource> res =getResource(req.URI).toStrongRef();
-    if(res.isNull())
-         res.reset(new Resource);
-
-    WebManager man(resources);
-    qDebug() << man.processRequest(req);
-    os << man.processRequest(req);
-    }
+    qDebug() << manager.processRequest(req);
+    os << manager.processRequest(req);
     newClient->close();
 }
 
@@ -41,20 +35,20 @@ void Server::sendAck()
 
 }
 
-void Server::fillResources()
+Resource *Server::fillResources()
 {
-    resources.reset(new Resource);
+    auto resources = new Resource;
     {
         resources->addRes({"level1"}, new Resource);
         resources->addRes({"date"}, new Date);
     }
-
+    return resources;
 }
 
-QWeakPointer<Resource> Server::getResource(QStringList path)
-{
- if(path.isEmpty())
-     return resources;
- else
-    return resources->getRes(path);
-}
+//QWeakPointer<Resource> Server::getResource(QStringList path)
+//{
+// if(path.isEmpty())
+//     return resources;
+// else
+//    return resources->getRes(path);
+//}
