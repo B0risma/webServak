@@ -3,8 +3,8 @@
 #include <QDateTime>
 #include <ifaddrs.h>
 #include <iomanip>
-#include <ctime>
 
+#include <sys/time.h>
 
 Resource::Resource(const QString &resName) : name(resName)
 {
@@ -64,20 +64,19 @@ Date::Date() : Resource("time")
 
 }
 
+
 QString Date::value(const QString &name) const
 {
-    const std::time_t now = time(nullptr);
-    return {asctime(std::localtime(&now))};
+    QDateTime curTime = QDateTime::fromSecsSinceEpoch(time(nullptr));
+    return curTime.toString(Qt::DateFormat::ISODate);
 }
 
 void Date::setValue(const QString &name, const QString &value)
 {
-    if(true){
-        timespec *tp;
-        clock_gettime(CLOCK_REALTIME, tp);
-        tp->tv_sec+=65;
-        clock_settime(CLOCK_REALTIME, tp);
-    }
+    auto time = QDateTime::fromString(value, Qt::DateFormat::ISODate);
+    const time_t curTime = time.toSecsSinceEpoch();
+    timeval newTime{curTime};
+    settimeofday(&newTime, nullptr);
 }
 
 QString Eth::value(const QString &name) const

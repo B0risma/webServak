@@ -16,7 +16,8 @@ QString WebManager::processRequest(const RequestI &request)
             break;
         }
         case RequestI::PATCH:{
-            targetResource->setValue("time", "time");
+            qDebug() << request.body;
+            targetResource->setValue("time", "2024-04-20T10:10:10");
             break;
         }
         default:
