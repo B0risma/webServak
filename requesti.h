@@ -1,6 +1,7 @@
 #pragma once
 #include <QStringList>
 #include <QMetaEnum>
+#include <QJsonObject>
 //! Базовый интерфейс для обработки клиентских запросов
 //!
 class RequestI
@@ -18,10 +19,8 @@ public:
         OPTIONS //Принимаемые запросы
     } method = UNKNOWN;
     Q_ENUM(Method)
-    static const QMap<QString, quint8> methodMap;
     bool isValid = false;
     QStringList URI;
     QStringList header;
-    QStringList body; //Времянка - по сути JSON
-
+    QJsonObject body;
 };

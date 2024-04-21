@@ -2,6 +2,8 @@
 #include <QTextStream>
 #include <QMetaEnum>
 
+#include <QJsonDocument>
+
 RequestI::RequestI(const QByteArray &data)
 {
     QTextStream s(data);
@@ -23,22 +25,43 @@ RequestI::RequestI(const QByteArray &data)
     firstLine.remove(' ');
     URI = firstLine.split('/', Qt::SplitBehaviorFlags::SkipEmptyParts);
 
+
+    for(QString line = s.readLine(); !line.isEmpty() && !s.atEnd(); line = s.readLine())
+        header.push_back(line);
+//    qDebug() << "header " << header;
+
+    if(!s.atEnd())
+    {
+        QString reqBody;
+        while(!s.atEnd()){
+            reqBody.append(s.readLine());
+        }
+        QJsonParseError error;
+        auto jsonReq = QJsonDocument::fromJson(reqBody.toLocal8Bit(), &error);
+//        qDebug() << "json body: " << jsonReq.toJson();
+        if(error.error != QJsonParseError::NoError)
+            qDebug() << "error:" << error.errorString();
+        body = jsonReq.object();
+    }
+
 }
 
 QString RequestI::toString() const
 {
     QString str;
     QTextStream s(&str);
-    s << "METHOD(GET(0), POST(1))" << method << '\n';
+    QMetaEnum methodObj = QMetaEnum::fromType<RequestI::Method>();
+    s << "METHOD: " << methodObj.valueToKey(method) << '\n';
     s << "URL ";
     for(const auto &line:URI)
         s<<line << '/';
     s << '\n';
-    s << "header: \n";
+    s << "all header: \n";
     for(const auto &line:header)
         s<<line << '\n';
     s << "body: \n";
-    for(const auto &line:body)
-        s<<line << '\n';
+    {
+        s << QJsonDocument(body).toJson();
+    };
     return str;
 }

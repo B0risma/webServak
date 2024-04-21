@@ -34,6 +34,7 @@ public:
     QString name = "Int";
     virtual QString value(const QString &name = {}) const {return "test";}
     virtual void setValue(const QString &name, const QString &value){}
+    virtual bool setValue(const QJsonObject &data){}
 };
 
 class Date : public Resource{
@@ -41,7 +42,8 @@ public:
     Date();
     virtual ~Date() = default;
     QString value(const QString &name = {}) const override;
-    void setValue(const QString &name, const QString &value) override;
+    bool setValue(const QJsonObject &data) override;
+    void setTime(const QString& newTime);
 };
 
 
@@ -50,5 +52,4 @@ class Eth : public Resource{
     Eth() : Resource("Eth"){};
     virtual ~Eth();
     QString value(const QString &name = {}) const override;
-    void setValue(const QString &name, const QString &value) override;
 };

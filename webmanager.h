@@ -8,8 +8,8 @@ class WebManager
 {
 public:
     enum ReplyStat : quint8{
-        Ok,
-        NotFound
+        NotFound = 0,
+        Ok=1,
     };
     WebManager(/*QWeakPointer<Resource> targetRes*/) {
 //        auto newRes = new Resource;

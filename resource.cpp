@@ -71,13 +71,25 @@ QString Date::value(const QString &name) const
     return curTime.toString(Qt::DateFormat::ISODate);
 }
 
-void Date::setValue(const QString &name, const QString &value)
+bool Date::setValue(const QJsonObject &data)
 {
-    auto time = QDateTime::fromString(value, Qt::DateFormat::ISODate);
+    qDebug() << name << "setValue" << data;
+    if(data.contains("time")){
+        setTime(data["time"].toString());
+        qDebug() << "OK";
+    }
+    else return false;
+    return true;
+}
+
+void Date::setTime(const QString &timeStr)
+{
+    auto time = QDateTime::fromString(timeStr, Qt::DateFormat::ISODate);
     const time_t curTime = time.toSecsSinceEpoch();
     timeval newTime{curTime};
     settimeofday(&newTime, nullptr);
 }
+
 
 QString Eth::value(const QString &name) const
 {

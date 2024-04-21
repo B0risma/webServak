@@ -25,7 +25,6 @@ void Server::onNewConnection()
     qDebug() << req.toString() << req.URI;
     QTextStream os(newClient);
     os.setAutoDetectUnicode(true);
-    qDebug() << manager.processRequest(req);
     os << manager.processRequest(req);
     newClient->close();
 }
