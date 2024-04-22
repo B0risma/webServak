@@ -49,7 +49,7 @@ public:
 
 class Eth : public Resource{
    public:
-    Eth() : Resource("Eth"){};
-    virtual ~Eth();
+    Eth();
+    virtual ~Eth() = default;
     QString value(const QString &name = {}) const override;
 };

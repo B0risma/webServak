@@ -6,6 +6,10 @@
 
 #include <sys/time.h>
 
+#include <net/if.h>
+#include <arpa/inet.h>
+#include <net/if.h>
+
 Resource::Resource(const QString &resName) : name(resName)
 {
 }
@@ -90,6 +94,11 @@ void Date::setTime(const QString &timeStr)
     settimeofday(&newTime, nullptr);
 }
 
+
+Eth::Eth() : Resource("Ethernet")
+{
+
+}
 
 QString Eth::value(const QString &name) const
 {
