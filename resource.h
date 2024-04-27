@@ -47,9 +47,11 @@ public:
 };
 
 
-class Eth : public Resource{
+class IFManager : public Resource{
    public:
-    Eth();
-    virtual ~Eth() = default;
+    IFManager();
+    virtual ~IFManager() = default;
     QString value(const QString &name = {}) const override;
+    std::string getIPv4(const std::string &ifName) const;
+    int setIPv4(const std::string &name, const std::string &addr);
 };
