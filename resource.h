@@ -46,12 +46,3 @@ public:
     void setTime(const QString& newTime);
 };
 
-
-class IFManager : public Resource{
-   public:
-    IFManager();
-    virtual ~IFManager() = default;
-    QString value(const QString &name = {}) const override;
-    std::string getIPv4(const std::string &ifName) const;
-    int setIPv4(const std::string &name, const std::string &addr);
-};
