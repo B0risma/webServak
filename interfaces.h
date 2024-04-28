@@ -6,11 +6,12 @@ class IFManager : public Resource{
 public:
     IFManager();
     virtual ~IFManager() = default;
-    QString value(const QString &name = {}) const override;
-    std::string getIPv4(const std::string &ifName) const;
-    int setIPv4(const std::string &name, const std::string &addr);
-    QStringList getIPv6(const std::string &ifName) const;
-    int setIPv6(const std::string &name, const std::string &addr);
+    QJsonObject toJsonObject(const QString &name = {}) const override;
+    //! ip/mask
+    QString getIPv4(const QString &ifName) const;
+    int setIPv4(const QString &name, const QString &addr, const QString &mask);
+    QStringList getIPv6(const QString &ifName) const;
+    int setIPv6(const QString &name, const QString &addr);
 };
 
 #endif // INTERFACES_H
