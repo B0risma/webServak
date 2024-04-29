@@ -4,6 +4,7 @@
 #include "interfaces.h"
 
 
+
 #include <QTcpSocket>
 #include <QTextStream>
 #include <QJsonDocument>
@@ -42,6 +43,7 @@ Resource *Server::fillResources()
         resources->addRes({"level1"}, new Resource);
         resources->addRes({"date"}, new Date);
         resources->addRes({"interfaces"}, new IFManager);
+        resources->addRes({"sysinfo"}, new SysInfo);
     }
     return resources;
 }

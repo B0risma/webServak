@@ -1,19 +1,13 @@
 #include "resource.h"
 #include <QJsonArray>
 #include <QDateTime>
-#include <QScopedPointer>
+#include <QFile>
+#include <QTextStream>
 
 #include <sys/time.h>
 
-
-
-
 #include <string>
 #include <memory>
-
-Resource::Resource(const QString &resName) : name(resName)
-{
-}
 
 bool Resource::addRes(QStringList path, Resource *res)
 {
@@ -94,10 +88,7 @@ QJsonObject Resource::data(const QJsonObject &requestData) const
 }
 
 
-
-
-
-Date::Date() : Resource("time")
+Date::Date()
 {
 }
 
@@ -109,28 +100,37 @@ QJsonObject Date::data(const QJsonObject &requestData) const
     return obj;
 }
 
-//bool Date::value(QStringList path, QJsonValue &value)
-//{
-//    QDateTime curTime = QDateTime::fromSecsSinceEpoch(time(nullptr));
-//    value = curTime.toString(Qt::DateFormat::ISODate);
-//    return true;
-//}
-
-bool Date::setValue(const QJsonObject &data)
+bool Date::setData(const QJsonObject &data)
 {
-    qDebug() << name << "setValue" << data;
-    if(data.contains("time")){
-        setTime(data["time"].toString());
-        qDebug() << "OK";
+    qDebug() << "Date::setData" << data;
+    if(data.contains("date")){
+        return setTime(data["date"].toString());
     }
-    else return false;
+    return false;
+}
+
+bool Date::setTime(const QString &timeStr)
+{
+    const auto &time = QDateTime::fromString(timeStr, Qt::DateFormat::ISODate);
+    const time_t curTime = time.toSecsSinceEpoch();
+    timeval newTime{curTime};
+    if(settimeofday(&newTime, nullptr) != 0)
+        return false;
     return true;
 }
 
-void Date::setTime(const QString &timeStr)
+QJsonObject SysInfo::data(const QJsonObject &requestData) const
 {
-    auto time = QDateTime::fromString(timeStr, Qt::DateFormat::ISODate);
-    const time_t curTime = time.toSecsSinceEpoch();
-    timeval newTime{curTime};
-    settimeofday(&newTime, nullptr);
+    QJsonObject ret;
+    ret["processor temp"] = procTemp();
+    return ret;
+}
+
+float SysInfo::procTemp() const
+{
+    QFile tempInfo("/sys/class/thermal/thermal_zone0/temp");
+    if(!tempInfo.open(QIODevice::ReadOnly))
+        return 0;
+    QTextStream fileStr(&tempInfo);
+    return fileStr.readLine().toFloat()/1000;
 }

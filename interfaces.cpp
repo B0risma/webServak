@@ -12,22 +12,43 @@
 #include <QStringList>
 #include <QJsonArray>
 
-IFManager::IFManager() : Resource("interfaces")
-{
-}
 
 QJsonObject IFManager::data(const QJsonObject &requestData) const
 {
     auto obj = Resource::data({});
     if(requestData.isEmpty()){
         //вытащить список interfaces
-        QString intName = "enp0s3";
+        QString intName = "enp3s0";
         QJsonObject interface;
         interface["inet"] = getIPv4(intName);
         interface["inte6"] = QJsonArray::fromStringList(getIPv6(intName));
         obj[intName] = interface;
     }
     return obj;
+}
+
+bool IFManager::setData(const QJsonObject &data)
+{
+    if(data.isEmpty()) return false;
+    bool ret = true;
+//    for(auto it = data.constBegin(); it != data.constEnd(); ++it)
+    {
+        //проверить список интерфейсов
+        QString ifName = "enp3s0";
+        if(!data.contains(ifName)) return false;
+        const auto &ifData = data.value(ifName).toObject();
+        if(ifData.contains("inet")){
+            if(setIPv4(ifName, ifData.value("inet").toString()) == 0)
+                ret &= true;
+            else ret = false;
+        }
+        if(ifData.contains("inet6")){
+            if(setIPv6(ifName, ifData.value("inet6").toString()) == 0)
+                ret &= true;
+            else ret = false;
+        }
+    }
+    return ret;
 }
 
 
@@ -52,8 +73,10 @@ QString IFManager::getIPv4(const QString &ifName) const
     return ret;
 }
 
-int IFManager::setIPv4(const QString &name, const QString &addrStr, const QString &maskStr)
+int IFManager::setIPv4(const QString &name, const QString &addrmask)
 {
+    const QString &addrStr = addrmask.section('/', 0, 0);
+    const QString &maskStr = addrmask.section('/', 1, 1);
     constexpr auto sockFamily = AF_INET;
     auto sock = socket(sockFamily, SOCK_DGRAM, 0);
     struct ifreq ifr = {};

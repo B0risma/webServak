@@ -16,7 +16,6 @@ class Resource
 public:
     Resource(){}
     virtual ~Resource() = default;
-    Resource(const QString &resName);
     ResourceType type = ResourceType::Text;
     //!Удаление объекта, если существовал
     bool deleteRes(const QStringList &path);
@@ -29,24 +28,26 @@ public:
 //    const Resource &getRes(const QString &curPath) const;
     QWeakPointer<Resource> getRes(QStringList path);
     QMap<QString, QSharedPointer<Resource>> subResources;
-//    virtual QJsonObject toJsonObject(const QString &name = {}) const;
 
-    QString name = "Int";
-    //обход по ресурсам и вставка значения в obj
-//    virtual bool value(QStringList path, QJsonValue &value) const;
     virtual QJsonObject data(const QJsonObject& requestData) const;
-
-    virtual void setValue(const QString &name, const QString &value){}
-    virtual bool setValue(const QJsonObject &data){}
+    virtual bool setData(const QJsonObject &data){}
 };
 
 class Date : public Resource{
 public:
     Date();
     virtual ~Date() = default;
-//    QJsonObject toJsonObject(const QString &obj = {}) const override;
     QJsonObject data(const QJsonObject& requestData) const override;
-    bool setValue(const QJsonObject &data) override;
-    void setTime(const QString& newTime);
+    bool setData(const QJsonObject &data) override;
+    bool setTime(const QString& newTime);
 };
 
+class SysInfo : public Resource{
+public:
+    SysInfo(){};
+    virtual ~SysInfo() = default;
+    QJsonObject data(const QJsonObject& requestData) const override;
+    bool setData(const QJsonObject &data) override{return false;}
+
+    float procTemp() const;
+};
