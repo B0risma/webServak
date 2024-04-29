@@ -29,10 +29,13 @@ public:
 //    const Resource &getRes(const QString &curPath) const;
     QWeakPointer<Resource> getRes(QStringList path);
     QMap<QString, QSharedPointer<Resource>> subResources;
-    virtual QJsonObject toJsonObject(bool allTree = false) const;
+//    virtual QJsonObject toJsonObject(const QString &name = {}) const;
 
     QString name = "Int";
-    virtual QString value(const QString &name = {}) const {return "test";}
+    //обход по ресурсам и вставка значения в obj
+//    virtual bool value(QStringList path, QJsonValue &value) const;
+    virtual QJsonObject data(const QJsonObject& requestData) const;
+
     virtual void setValue(const QString &name, const QString &value){}
     virtual bool setValue(const QJsonObject &data){}
 };
@@ -41,7 +44,8 @@ class Date : public Resource{
 public:
     Date();
     virtual ~Date() = default;
-    QString value(const QString &name = {}) const override;
+//    QJsonObject toJsonObject(const QString &obj = {}) const override;
+    QJsonObject data(const QJsonObject& requestData) const override;
     bool setValue(const QJsonObject &data) override;
     void setTime(const QString& newTime);
 };

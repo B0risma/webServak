@@ -10,15 +10,27 @@
 #include <QTextStream>
 #include <QString>
 #include <QStringList>
+#include <QJsonArray>
 
 IFManager::IFManager() : Resource("interfaces")
 {
 }
 
-QString IFManager::value(const QString &name) const
+QJsonObject IFManager::data(const QJsonObject &requestData) const
 {
-
+    auto obj = Resource::data({});
+    if(requestData.isEmpty()){
+        //вытащить список interfaces
+        QString intName = "enp0s3";
+        QJsonObject interface;
+        interface["inet"] = getIPv4(intName);
+        interface["inte6"] = QJsonArray::fromStringList(getIPv6(intName));
+        obj[intName] = interface;
+    }
+    return obj;
 }
+
+
 
 QString IFManager::getIPv4(const QString &ifName) const
 {

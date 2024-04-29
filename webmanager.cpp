@@ -11,8 +11,7 @@ QString WebManager::processRequest(const RequestI &request)
     if(!targetResource.isNull()){
         switch (request.method) {
         case RequestI::GET:{
-            ret = reply(Ok, RequestI::GET);
-            ret+=QString::fromLatin1(QJsonDocument(targetResource->toJsonObject()).toJson(QJsonDocument::JsonFormat::Indented));
+            ret+=QString::fromLatin1(QJsonDocument(targetResource->data({})).toJson(QJsonDocument::JsonFormat::Indented));
             break;
         }
         case RequestI::PATCH:{

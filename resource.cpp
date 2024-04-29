@@ -45,19 +45,52 @@ QWeakPointer<Resource> Resource::getRes(QStringList path)
     return weak;
 }
 
-QJsonObject Resource::toJsonObject(bool allTree) const
+//QJsonObject Resource::toJsonObject(const QString &obj) const
+//{
+//    bool allTree = name.isEmpty();
+//    QJsonObject thisObject;
+//    if(obj.isEmpty())
+//        thisObject[name];
+//    QJsonArray subRes;
+//    for(auto it = subResources.constBegin(); it != subResources.constEnd(); ++it){
+//        QJsonObject subObj;
+//        auto resPtr = it.value();
+//        subObj[it.key()] = (resPtr.get()&&allTree) ? resPtr->toJsonObject(allTree) : QJsonObject();
+//        subRes.append(subObj);
+//    }
+//    thisObject["resources"] = subRes;
+//    return thisObject;
+//}
+
+//bool Resource::value(QStringList path, QJsonValue &value) const
+//{
+//    if(!path.isEmpty()){
+//        const QString &res = path.pop_front();
+//        auto resPtr = subResources.value(res);
+//        if(resPtr.isNull()) return false;
+//        return resPtr->value(path, value);
+//    }
+//    QJsonObject forValue;
+//    QJsonArray subRes;
+//    for(auto it = subResources.constBegin();
+//         it != subResources.constEnd(); ++t)
+//        subRes.append(it.key());
+//    forValue["resources"] = subRes;
+//    value = forValue;
+//    return true;
+//}
+
+QJsonObject Resource::data(const QJsonObject &requestData) const
 {
-    QJsonObject thisObject;
-    thisObject[name] = value();
-    QJsonArray subRes;
-    for(auto it = subResources.constBegin(); it != subResources.constEnd(); ++it){
-        QJsonObject subObj;
-        auto resPtr = it.value();
-        subObj[it.key()] = (resPtr.get()&&allTree) ? resPtr->toJsonObject(allTree) : QJsonObject();
-        subRes.append(subObj);
+    QJsonObject resData;
+    if(requestData.isEmpty()){
+        QJsonArray subRes;
+        for(auto it = subResources.constBegin();
+             it != subResources.constEnd(); ++it)
+            subRes.append(it.key());
+        resData["resources"] = subRes;
     }
-    thisObject["resources"] = subRes;
-    return thisObject;
+    return resData;
 }
 
 
@@ -66,15 +99,22 @@ QJsonObject Resource::toJsonObject(bool allTree) const
 
 Date::Date() : Resource("time")
 {
-
 }
 
-
-QString Date::value(const QString &name) const
+QJsonObject Date::data(const QJsonObject &requestData) const
 {
+    auto obj = Resource::data(requestData);
     QDateTime curTime = QDateTime::fromSecsSinceEpoch(time(nullptr));
-    return curTime.toString(Qt::DateFormat::ISODate);
+    obj["date"] = curTime.toString(Qt::DateFormat::ISODate);
+    return obj;
 }
+
+//bool Date::value(QStringList path, QJsonValue &value)
+//{
+//    QDateTime curTime = QDateTime::fromSecsSinceEpoch(time(nullptr));
+//    value = curTime.toString(Qt::DateFormat::ISODate);
+//    return true;
+//}
 
 bool Date::setValue(const QJsonObject &data)
 {

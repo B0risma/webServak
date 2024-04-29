@@ -6,7 +6,7 @@ class IFManager : public Resource{
 public:
     IFManager();
     virtual ~IFManager() = default;
-    QJsonObject toJsonObject(const QString &name = {}) const override;
+    QJsonObject data(const QJsonObject& requestData) const override;
     //! ip/mask
     QString getIPv4(const QString &ifName) const;
     int setIPv4(const QString &name, const QString &addr, const QString &mask);

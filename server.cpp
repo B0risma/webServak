@@ -1,6 +1,7 @@
 #include "server.h"
 #include "requesti.h"
 #include "webmanager.h"
+#include "interfaces.h"
 
 
 #include <QTcpSocket>
@@ -40,6 +41,7 @@ Resource *Server::fillResources()
     {
         resources->addRes({"level1"}, new Resource);
         resources->addRes({"date"}, new Date);
+        resources->addRes({"interfaces"}, new IFManager);
     }
     return resources;
 }
