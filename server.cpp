@@ -40,7 +40,7 @@ Resource *Server::fillResources()
 {
     auto resources = new Resource;
     {
-        resources->addRes({"level1"}, new Resource);
+//        resources->addRes({"level1"}, new Resource);
         resources->addRes({"date"}, new Date);
         resources->addRes({"interfaces"}, new IFManager);
         resources->addRes({"sysinfo"}, new SysInfo);

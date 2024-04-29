@@ -16,9 +16,8 @@
 QJsonObject IFManager::data(const QJsonObject &requestData) const
 {
     auto obj = Resource::data({});
-    if(requestData.isEmpty()){
-        //вытащить список interfaces
-        QString intName = "enp3s0";
+    const auto &ifNames = interfaces();
+    for(const auto &intName : ifNames){
         QJsonObject interface;
         interface["inet"] = getIPv4(intName);
         interface["inte6"] = QJsonArray::fromStringList(getIPv6(intName));
@@ -30,12 +29,12 @@ QJsonObject IFManager::data(const QJsonObject &requestData) const
 bool IFManager::setData(const QJsonObject &data)
 {
     if(data.isEmpty()) return false;
-    bool ret = true;
-//    for(auto it = data.constBegin(); it != data.constEnd(); ++it)
+    bool ret = false;
+    const auto &ifNames = interfaces();
+    for(const auto &ifName : ifNames)
     {
-        //проверить список интерфейсов
-        QString ifName = "enp3s0";
-        if(!data.contains(ifName)) return false;
+        if(!data.contains(ifName)) continue;
+        ret = true;
         const auto &ifData = data.value(ifName).toObject();
         if(ifData.contains("inet")){
             if(setIPv4(ifName, ifData.value("inet").toString()) == 0)
@@ -167,4 +166,33 @@ int IFManager::setIPv6(const QString &ifName, const QString &addrStr)
     if(!out.readAll().isEmpty()) return -1;
     pclose(fd);
     return 0;
+}
+
+QStringList IFManager::interfaces() const
+{
+    QStringList ifNames;
+    ifconf conf;
+    constexpr int testLen = 10*sizeof(ifreq);
+    conf.ifc_len = testLen;
+    conf.ifc_ifcu.ifcu_req = new ifreq[10];
+    auto sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if(ioctl(sock, SIOCGIFCONF, &conf) < 0){
+        perror("SIOCIFCONF");
+        return ifNames;
+    }
+    else if(conf.ifc_len != testLen){
+        delete[] conf.ifc_ifcu.ifcu_req;
+        conf.ifc_ifcu.ifcu_req = new ifreq[conf.ifc_len/sizeof(ifreq)];
+        if(ioctl(sock, SIOCGIFCONF, &conf) != 0)
+            return ifNames;
+    }
+    const ifreq *ifr = conf.ifc_ifcu.ifcu_req;
+    size_t i = 0;
+    while(ifr && i < (conf.ifc_len/sizeof(ifreq))){
+        ifNames << ifr->ifr_ifrn.ifrn_name;
+        ++ifr;
+        ++i;
+    }
+    delete[] conf.ifc_ifcu.ifcu_req;
+    return ifNames;
 }
