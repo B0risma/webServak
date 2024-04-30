@@ -1,5 +1,5 @@
 QT -= gui
-QT+=network
+QT+=network serialport
 
 CONFIG += c++14 console
 CONFIG -= app_bundle
@@ -13,6 +13,7 @@ SOURCES += \
         main.cpp \
         requesti.cpp \
         resource.cpp \
+        serialmanager.cpp \
         server.cpp \
         webmanager.cpp
 
@@ -25,5 +26,6 @@ HEADERS += \
     interfaces.h \
     requesti.h \
     resource.h \
+    serialmanager.h \
     server.h \
     webmanager.h

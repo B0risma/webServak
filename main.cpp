@@ -1,7 +1,5 @@
 #include <QCoreApplication>
 #include <server.h>
-#include <string>
-#include "interfaces.h"
 #include "serialmanager.h"
 
 int main(int argc, char *argv[])
