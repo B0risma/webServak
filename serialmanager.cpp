@@ -14,16 +14,16 @@ const QMap <QString, std::function<QString()>> SerialManager::gets{
 };
 
 
-SerialManager::SerialManager()
-{
-    setupSerial();
-}
+
 
 void SerialManager::readNew()
 {
     QString newData = serialIO.readAll();
+
+    newData.remove('\n');
+    newData.remove('\r');
     qDebug()  << "new serial data" << newData;
-    serialIO << QString("echo: ").append(newData);
+    lineToSerial(newData);
     if(newData.isEmpty()) return;
 
     if(newData == "?"){
@@ -31,7 +31,7 @@ void SerialManager::readNew()
             QString out;
             QTextStream strBuf(&out, QIODevice::WriteOnly);
             strBuf << it.key() << ":" << it.value()() << '\n';
-            serialIO << out;
+            lineToSerial(out);
             qDebug() << out;
         }
         return;
@@ -39,27 +39,35 @@ void SerialManager::readNew()
 
     if(newData.at(0) == '?'){
         const QString &resource = newData.section("? ",1, 1);
-        serialIO << gets[resource]();
-        qDebug() << gets[resource]();
+        if(gets.contains(resource)){
+            lineToSerial(gets[resource]());
+            qDebug() << gets[resource]();
+        }
     }
 
 }
-void SerialManager::setupSerial()
+bool SerialManager::setupSerial(const QString &serialName)
 {
-    const auto &serialPortInfos = QSerialPortInfo::availablePorts();
-    for (const QSerialPortInfo &portInfo : serialPortInfos) {
-        qDebug() << "\n"
-                 << "Port:" << portInfo.portName() << "\n"
-                 << "Location:" << portInfo.systemLocation();
-    }
-    if(serialPortInfos.isEmpty()){
-        qDebug() << "no available COMs";
-        return;
-    }
-    serial.setPort(serialPortInfos.first());
+//    const auto &serialPortInfos = QSerialPortInfo::availablePorts();
+//    for (const QSerialPortInfo &portInfo : serialPortInfos) {
+//        qDebug() << "\n"
+//                 << "Port:" << portInfo.portName() << "\n"
+//                 << "Location:" << portInfo.systemLocation();
+//    }
+//    if(serialPortInfos.isEmpty()){
+//        qDebug() << "no available COMs";
+//        return;
+//    }
+//    serial.setPort(/*serialPortInfos.first()*/ );
+    serial.setPortName(serialName);
     serial.setBaudRate(115200);
-    if(!serial.open(QIODevice::ReadWrite))
+    if(!serial.open(QIODevice::ReadWrite)){
         qDebug() << "error open tty";
+        return false;
+    }
     serialIO.setDevice(&serial);
+    qDebug() << "server listen" << serialName;
+    lineToSerial("Server started\r");
     connect(&serial, &QSerialPort::readyRead, this, &SerialManager::readNew);
+    return true;
 }

@@ -20,8 +20,5 @@ private:
     Resource * fillResources();
 //    QWeakPointer<Resource> getResource(QStringList path);
     WebManager manager;
-    SerialManager serial;
-
-
 };
 

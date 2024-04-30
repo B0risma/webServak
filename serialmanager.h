@@ -9,12 +9,16 @@ class SerialManager : public QObject
 {
     Q_OBJECT
 public:
-    SerialManager();
-
+    SerialManager(){}
+bool setupSerial(const QString &serialName = {});
 private slots:
     void readNew();
 private:
-    void setupSerial();
+
+    void lineToSerial(QString data){
+        serial.write(data.append("\r\n").toLatin1());
+        serial.waitForBytesWritten();
+    }
     QSerialPort serial;
     QTextStream serialIO;
 
