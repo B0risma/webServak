@@ -2,11 +2,13 @@
 #include <server.h>
 #include <string>
 #include "interfaces.h"
+#include "serialmanager.h"
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    new Server(0);
+//    Server serv(0);
+    SerialManager ser;
     return a.exec();
 
 }

@@ -9,6 +9,7 @@
 #include <QTextStream>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QSerialPortInfo>
 
 
 Server::Server(QObject *parent)
@@ -16,8 +17,8 @@ Server::Server(QObject *parent)
     connect(this, &Server::newConnection, this, &Server::onNewConnection);
     listen(QHostAddress::Any, 8001);
     manager.rootResource.reset(fillResources());
-
 }
+
 
 void Server::onNewConnection()
 {
@@ -47,6 +48,8 @@ Resource *Server::fillResources()
     }
     return resources;
 }
+
+
 
 //QWeakPointer<Resource> Server::getResource(QStringList path)
 //{

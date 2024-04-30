@@ -95,8 +95,7 @@ Date::Date()
 QJsonObject Date::data(const QJsonObject &requestData) const
 {
     auto obj = Resource::data(requestData);
-    QDateTime curTime = QDateTime::fromSecsSinceEpoch(time(nullptr));
-    obj["date"] = curTime.toString(Qt::DateFormat::ISODate);
+    obj["date"] = getTime();
     return obj;
 }
 
@@ -107,6 +106,11 @@ bool Date::setData(const QJsonObject &data)
         return setTime(data["date"].toString());
     }
     return false;
+}
+
+QString Date::getTime()
+{
+    return QDateTime::fromSecsSinceEpoch(time(nullptr)).toString(Qt::DateFormat::ISODate);
 }
 
 bool Date::setTime(const QString &timeStr)

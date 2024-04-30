@@ -39,6 +39,7 @@ public:
     virtual ~Date() = default;
     QJsonObject data(const QJsonObject& requestData) const override;
     bool setData(const QJsonObject &data) override;
+    static QString getTime();
     bool setTime(const QString& newTime);
 };
 

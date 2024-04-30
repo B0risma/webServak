@@ -1,9 +1,9 @@
 #pragma once
 #include "resource.h"
 #include "webmanager.h"
+#include "serialmanager.h"
 
 #include <QTcpServer>
-#include <QSharedPointer>
 
 class Server : public QTcpServer
 {
@@ -20,5 +20,8 @@ private:
     Resource * fillResources();
 //    QWeakPointer<Resource> getResource(QStringList path);
     WebManager manager;
+    SerialManager serial;
+
+
 };
 
