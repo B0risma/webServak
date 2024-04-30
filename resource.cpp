@@ -3,10 +3,10 @@
 #include <QDateTime>
 #include <QFile>
 #include <QTextStream>
+#include <QDir>
 
 #include <sys/time.h>
 
-#include <string>
 #include <memory>
 
 bool Resource::addRes(QStringList path, Resource *res)
@@ -122,15 +122,50 @@ bool Date::setTime(const QString &timeStr)
 QJsonObject SysInfo::data(const QJsonObject &requestData) const
 {
     QJsonObject ret;
-    ret["processor temp"] = procTemp();
+    const auto &coreTemps = CPUTemp();
+    {
+        QJsonObject CPUtemp;
+        for(int i = 0; i < coreTemps.size(); ++i){
+            CPUtemp[QString("CPU%1").arg(i)] = coreTemps.at(i);
+        }
+        ret["CPU temperature"] = CPUtemp;
+    }
     return ret;
 }
 
-float SysInfo::procTemp() const
+QStringList SysInfo::CPUTemp() const
 {
-    QFile tempInfo("/sys/class/thermal/thermal_zone0/temp");
-    if(!tempInfo.open(QIODevice::ReadOnly))
-        return 0;
-    QTextStream fileStr(&tempInfo);
-    return fileStr.readLine().toFloat()/1000;
+    QStringList cpuTemps;
+    QDir cpuHwmon;
+    {
+        QDir hwmon("/sys/class/hwmon");
+        if(hwmon.exists()){
+            hwmon.setFilter(QDir::Dirs);
+            for(const auto &hwmonNum : hwmon.entryList({"hwmon*"})){
+                QDir objHwmon(hwmon.absolutePath()+ '/' + hwmonNum);
+                const auto &tempFiles = objHwmon.entryList({"temp*_input*"});
+                if(tempFiles.isEmpty() && !objHwmon.exists("name"))
+                    continue;
+                QFile name(objHwmon.absolutePath() + '/' + "name");
+                if(!name.open(QIODevice::ReadOnly))
+                    continue;
+                QTextStream fStream(&name);
+                if(fStream.readLine() != "coretemp")
+                    continue;
+                name.close();
+                cpuHwmon.setPath(objHwmon.absolutePath());
+                break;
+            }
+        }
+    }
+
+
+    for(const auto& tFileName : cpuHwmon.entryList({"temp*_input"})){
+        QFile tempInfo(cpuHwmon.absoluteFilePath(tFileName));
+        if(!tempInfo.open(QIODevice::ReadOnly))
+            continue;
+        QTextStream fileStr(&tempInfo);
+        cpuTemps << QString::number(fileStr.readLine().toFloat()/1000);
+    }
+    return cpuTemps;
 }

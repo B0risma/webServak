@@ -49,5 +49,5 @@ public:
     QJsonObject data(const QJsonObject& requestData) const override;
     bool setData(const QJsonObject &data) override{return false;}
 
-    float procTemp() const;
+    QStringList CPUTemp() const;
 };
