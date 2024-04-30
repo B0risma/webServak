@@ -1,5 +1,6 @@
 #include "serialmanager.h"
 #include "resource.h"
+#include "interfaces.h"
 
 #include <QSerialPortInfo>
 #include <QTextStream>
@@ -8,6 +9,8 @@
 
 const QMap <QString, std::function<QString()>> SerialManager::gets{
     {QLatin1String("date"), &Date::getTime},
+    {QLatin1String("sysinfo"), &SysInfo::stringData},
+    {QLatin1String("interfaces"), &IFManager::stringData},
 };
 
 
@@ -24,13 +27,13 @@ void SerialManager::readNew()
     if(newData.isEmpty()) return;
 
     if(newData == "?"){
-        QString out;
-        QTextStream strBuf(&out, QIODevice::WriteOnly);
         for(auto it = gets.constBegin(); it != gets.constEnd(); ++it){
+            QString out;
+            QTextStream strBuf(&out, QIODevice::WriteOnly);
             strBuf << it.key() << ":" << it.value()() << '\n';
+            serialIO << out;
+            qDebug() << out;
         }
-        serialIO << out;
-        qDebug() << out;
         return;
     }
 

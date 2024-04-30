@@ -50,9 +50,24 @@ bool IFManager::setData(const QJsonObject &data)
     return ret;
 }
 
+QString IFManager::stringData()
+{
+    QString out;
+    QTextStream str(&out, QIODevice::WriteOnly);
+    const auto &ifNames = interfaces();
+    for(const auto &intName : ifNames){
+        str << intName << "\n\r" << "inet:" << getIPv4(intName) << "\n\r";
+        str << "inet6:";
+        for(const auto &inet6 : getIPv6(intName))
+            str << inet6;
+        str << "\n\r";
+    }
+    return out;
+}
 
 
-QString IFManager::getIPv4(const QString &ifName) const
+
+QString IFManager::getIPv4(const QString &ifName)
 {
     constexpr auto sockFamily = AF_INET;
     auto sock = socket(sockFamily, SOCK_DGRAM, 0);
@@ -120,7 +135,7 @@ int IFManager::setIPv4(const QString &name, const QString &addrmask)
 //    return addr.toStdString();
 //}
 
-QStringList IFManager::getIPv6(const QString &ifName) const{
+QStringList IFManager::getIPv6(const QString &ifName){
     QString command{"ip -6 addr show dev "};
     command.append(ifName);
     FILE *fd = popen(command.toStdString().c_str(), "r");
@@ -168,7 +183,7 @@ int IFManager::setIPv6(const QString &ifName, const QString &addrStr)
     return 0;
 }
 
-QStringList IFManager::interfaces() const
+QStringList IFManager::interfaces()
 {
     QStringList ifNames;
     ifconf conf;

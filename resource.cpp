@@ -137,7 +137,18 @@ QJsonObject SysInfo::data(const QJsonObject &requestData) const
     return ret;
 }
 
-QStringList SysInfo::CPUTemp() const
+QString SysInfo::stringData()
+{
+    QString out;
+    QTextStream str(&out, QIODevice::WriteOnly);
+    const auto &coreTemps = CPUTemp();
+    for(int i = 0; i < coreTemps.size(); ++i){
+        str << QString("CPU%1: ").arg(i) << coreTemps.at(i) << '\n';
+    }
+    return out;
+}
+
+QStringList SysInfo::CPUTemp()
 {
     QStringList cpuTemps;
     QDir cpuHwmon;

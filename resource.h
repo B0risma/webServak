@@ -49,6 +49,6 @@ public:
     virtual ~SysInfo() = default;
     QJsonObject data(const QJsonObject& requestData) const override;
     bool setData(const QJsonObject &data) override{return false;}
-
-    QStringList CPUTemp() const;
+    static QString stringData();
+    static QStringList CPUTemp();
 };
