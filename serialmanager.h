@@ -10,7 +10,10 @@ class SerialManager : public QObject
     Q_OBJECT
 public:
     SerialManager(){}
-bool setupSerial(const QString &serialName = {});
+    ~SerialManager();
+    bool setupSerial(const QString &serialName = {});
+signals:
+    void onClose();
 private slots:
     void readNew();
 private:
@@ -23,6 +26,7 @@ private:
     QTextStream serialIO;
 
     static const QMap <QString, std::function<QString()>> gets;
+    static const QMap <QString, std::function<bool(QString)>> sets;
 };
 
 #endif // SERIALMANAGER_H

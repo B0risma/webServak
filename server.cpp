@@ -19,7 +19,6 @@ Server::Server(QObject *parent)
     manager.rootResource.reset(fillResources());
 }
 
-
 void Server::onNewConnection()
 {
     QTcpSocket *newClient = nextPendingConnection();
@@ -49,12 +48,3 @@ Resource *Server::fillResources()
     return resources;
 }
 
-
-
-//QWeakPointer<Resource> Server::getResource(QStringList path)
-//{
-// if(path.isEmpty())
-//     return resources;
-// else
-//    return resources->getRes(path);
-//}

@@ -9,11 +9,12 @@ public:
     QJsonObject data(const QJsonObject& requestData) const override;
     bool setData(const QJsonObject &data) override;
     static QString stringData();
+    static bool setStringData(const QString &command);
     //! ip/mask
     static QString getIPv4(const QString &ifName);
-    int setIPv4(const QString &name, const QString &addrmask);
+    static int setIPv4(const QString &name, const QString &addrmask);
     static QStringList getIPv6(const QString &ifName);
-    int setIPv6(const QString &name, const QString &addr);
+    static int setIPv6(const QString &name, const QString &addr);
     static QStringList interfaces();
 };
 

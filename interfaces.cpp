@@ -65,6 +65,19 @@ QString IFManager::stringData()
     return out;
 }
 
+bool IFManager::setStringData(const QString &command)
+{
+    if(command.isEmpty() || !command.contains("inet")) return false;
+    const auto& inet = command.section(' ', 0,0);
+    const auto& dev = command.section(' ', 1,1);
+    const auto& addr = command.section(' ', 2,2);
+    if(inet == "inet6")
+        return setIPv6(dev, addr) == 0;
+    else if(inet == "inet")
+        return setIPv4(dev, addr) == 0;
+    else return false;
+}
+
 
 
 QString IFManager::getIPv4(const QString &ifName)

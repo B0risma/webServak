@@ -10,15 +10,11 @@ class Server : public QTcpServer
     Q_OBJECT
 public:
     Server(QObject *parent);
-
-    void onNewConnection();
 public slots:
     void sendAck();
-
-
 private:
+    void onNewConnection();
     Resource * fillResources();
-//    QWeakPointer<Resource> getResource(QStringList path);
     WebManager manager;
 };
 

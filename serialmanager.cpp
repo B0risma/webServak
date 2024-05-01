@@ -14,6 +14,11 @@ const QMap <QString, std::function<QString()>> SerialManager::gets{
 };
 
 
+const QMap <QString, std::function<bool(QString)>> SerialManager::sets{
+    {QLatin1String("date"), &Date::setTime},
+    {QLatin1String("interfaces"), &IFManager::setStringData},
+    };
+
 
 
 void SerialManager::readNew()
@@ -41,11 +46,29 @@ void SerialManager::readNew()
         const QString &resource = newData.section("? ",1, 1);
         if(gets.contains(resource)){
             lineToSerial(gets[resource]());
-            qDebug() << gets[resource]();
         }
+        else  lineToSerial(QString("unknown ") + resource);;
     }
-
+    else if (newData.section(' ', 0,0) == "set"){
+        const auto& res = newData.section(' ', 1,1);
+        if(sets.contains(res)){
+            if(sets[res](newData.section(' ', 2)))
+                lineToSerial(gets[res]());
+            else lineToSerial("invalid data");
+        }
+        else lineToSerial(QString("unknown ") + res);
+    }
+    else if(newData == "close")
+        emit onClose();
+    else lineToSerial("unknown command");
 }
+
+SerialManager::~SerialManager()
+{
+    lineToSerial("close server");
+    serial.close();
+}
+
 bool SerialManager::setupSerial(const QString &serialName)
 {
 //    const auto &serialPortInfos = QSerialPortInfo::availablePorts();
@@ -59,14 +82,15 @@ bool SerialManager::setupSerial(const QString &serialName)
 //        return;
 //    }
 //    serial.setPort(/*serialPortInfos.first()*/ );
+    constexpr uint32_t baudRate = 115200;
     serial.setPortName(serialName);
-    serial.setBaudRate(115200);
+    serial.setBaudRate(baudRate);
     if(!serial.open(QIODevice::ReadWrite)){
         qDebug() << "error open tty";
         return false;
     }
     serialIO.setDevice(&serial);
-    qDebug() << "server listen" << serialName;
+    qDebug() << "server listen" << serialName << "baud:" << baudRate << "8N1";
     lineToSerial("Server started\r");
     connect(&serial, &QSerialPort::readyRead, this, &SerialManager::readNew);
     return true;

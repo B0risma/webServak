@@ -40,7 +40,7 @@ public:
     QJsonObject data(const QJsonObject& requestData) const override;
     bool setData(const QJsonObject &data) override;
     static QString getTime();
-    bool setTime(const QString& newTime);
+    static bool setTime(const QString& newTime);
 };
 
 class SysInfo : public Resource{
