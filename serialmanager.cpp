@@ -4,8 +4,49 @@
 
 #include <QSerialPortInfo>
 #include <QTextStream>
+#include <QChar>
 #include <QDebug>
 #include <string>
+
+SerialBuf::SerialBuf(QObject *parent, const QString &device) : QSerialPort(parent)
+{
+    constexpr uint32_t baudRate = 115200;
+    setPortName(device);
+    setBaudRate(baudRate);
+    if(!open(QIODevice::ReadWrite)){
+        qDebug() << "error open tty";
+    }
+    serialIO.setDevice(this);
+    qDebug() << "tty opened" << device << "baud:" << baudRate << "8N1";
+    connect(this, &QSerialPort::readyRead, this, &SerialBuf::procInput);
+}
+
+void SerialBuf::writeLine(const QString &line)
+{
+    write(QString(line + "\r\n").toLatin1());
+    waitForBytesWritten();
+}
+
+void SerialBuf::procInput()
+{
+    QString newData = serialIO.readAll();
+    newData.remove('\n');
+    newData.remove('\r');
+    const bool empty = newData.isEmpty();
+    if(empty)
+        newData.append("\r\n");
+    write(newData.toLatin1());
+    waitForBytesWritten();
+    if(empty){
+        emit newLine(inputBuffer);
+        inputBuffer.clear();
+    }
+    else if(newData == QChar(0x007F))
+        inputBuffer.remove(inputBuffer.size()-1, 1);
+    else
+        inputBuffer.append(newData);
+
+}
 
 const QMap <QString, std::function<QString()>> SerialManager::gets{
     {QLatin1String("date"), &Date::getTime},
@@ -19,23 +60,15 @@ const QMap <QString, std::function<bool(QString)>> SerialManager::sets{
     {QLatin1String("interfaces"), &IFManager::setStringData},
     };
 
-
-
-void SerialManager::readNew()
+void SerialManager::readNew(const QString &newData)
 {
-    QString newData = serialIO.readAll();
-
-    newData.remove('\n');
-    newData.remove('\r');
-    lineToSerial(newData);
     if(newData.isEmpty()) return;
-
     if(newData == "?"){
         for(auto it = gets.constBegin(); it != gets.constEnd(); ++it){
             QString out;
             QTextStream strBuf(&out, QIODevice::WriteOnly);
             strBuf << it.key() << ":" << it.value()() << '\n';
-            lineToSerial(out);
+            serial->writeLine(out);
         }
         return;
     }
@@ -43,53 +76,48 @@ void SerialManager::readNew()
     if(newData.at(0) == '?'){
         const QString &resource = newData.section("? ",1, 1);
         if(gets.contains(resource)){
-            lineToSerial(gets[resource]());
+            serial->writeLine(gets[resource]());
         }
-        else  lineToSerial(QString("unknown ") + resource);;
+        else  serial->writeLine(QString("unknown ") + resource);;
     }
     else if (newData.section(' ', 0,0) == "set"){
         const auto& res = newData.section(' ', 1,1);
         if(sets.contains(res)){
+            qDebug() << "try set" << newData.section(' ', 2,2);
             if(sets[res](newData.section(' ', 2)))
-                lineToSerial(gets[res]());
-            else lineToSerial("invalid data");
+                serial->writeLine(gets[res]());
+            else serial->writeLine("invalid data");
         }
-        else lineToSerial(QString("unknown ") + res);
+        else serial->writeLine(QString("unknown ") + res);
     }
     else if(newData == "close")
         emit onClose();
-    else lineToSerial("unknown command");
+    else serial->writeLine("unknown command");
 }
 
 SerialManager::~SerialManager()
 {
-    lineToSerial("close server");
-    serial.close();
+    serial->writeLine("close server");
 }
 
 bool SerialManager::setupSerial(const QString &serialName)
 {
-//    const auto &serialPortInfos = QSerialPortInfo::availablePorts();
-//    for (const QSerialPortInfo &portInfo : serialPortInfos) {
-//        qDebug() << "\n"
-//                 << "Port:" << portInfo.portName() << "\n"
-//                 << "Location:" << portInfo.systemLocation();
+//    constexpr uint32_t baudRate = 115200;
+//    serial.setPortName(serialName);
+//    serial.setBaudRate(baudRate);
+//    if(!serial.open(QIODevice::ReadWrite)){
+//        qDebug() << "error open tty";
+//        return false;
 //    }
-//    if(serialPortInfos.isEmpty()){
-//        qDebug() << "no available COMs";
-//        return;
-//    }
-//    serial.setPort(/*serialPortInfos.first()*/ );
-    constexpr uint32_t baudRate = 115200;
-    serial.setPortName(serialName);
-    serial.setBaudRate(baudRate);
-    if(!serial.open(QIODevice::ReadWrite)){
-        qDebug() << "error open tty";
+//    serialIO.setDevice(&serial);
+//    qDebug() << "server listen" << serialName << "baud:" << baudRate << "8N1";
+    serial = new SerialBuf(this, serialName);
+    if(!serial->isOpen())
         return false;
-    }
-    serialIO.setDevice(&serial);
-    qDebug() << "server listen" << serialName << "baud:" << baudRate << "8N1";
-    lineToSerial("Server started\r");
-    connect(&serial, &QSerialPort::readyRead, this, &SerialManager::readNew);
+    serial->writeLine("Server started");
+    connect(serial, &SerialBuf::newLine, this, &SerialManager::readNew);
+//    connect(&serial, &QSerialPort::readyRead, this, &SerialManager::readNew);
     return true;
 }
+
+

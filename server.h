@@ -11,8 +11,6 @@ class Server : public QTcpServer
     Q_OBJECT
 public:
     Server(QObject *parent);
-public slots:
-    void sendAck();
 private:
     void onNewConnection();
     Resource * fillResources();

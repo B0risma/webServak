@@ -19,7 +19,7 @@ Server::Server(QObject *parent)
     manager.rootResource.reset(fillResources());
 
     httpLogger = new Logger(this, "http");
-    *httpLogger << "ServerStarted";
+    *httpLogger << "ServerStarted on port" << 8001;
 }
 
 void Server::onNewConnection()
@@ -37,10 +37,6 @@ void Server::onNewConnection()
     *httpLogger << "reply" << reply;
 }
 
-void Server::sendAck()
-{
-
-}
 
 Resource *Server::fillResources()
 {
