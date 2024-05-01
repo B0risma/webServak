@@ -28,7 +28,6 @@ void Server::onNewConnection()
     newClient->waitForReadyRead();
     const auto received = newClient->readAll();
     RequestI req(received);
-    qDebug() << req.toString() << req.URI;
     QTextStream os(newClient);
     os.setAutoDetectUnicode(true);
     const QString& reply = manager.processRequest(req);
@@ -36,7 +35,6 @@ void Server::onNewConnection()
     newClient->close();
     *httpLogger << "request" << received;
     *httpLogger << "reply" << reply;
-
 }
 
 void Server::sendAck()
