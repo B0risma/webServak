@@ -29,8 +29,10 @@ QString WebManager::processRequest(const RequestI &request)
                 break;
             }
             case RequestI::PATCH:{
-                if(targetResource->setData(request.body))
+                if(targetResource->setData(request.body)){
                     ret = reply(Ok, RequestI::PATCH);
+                    ret+=QString::fromLatin1(QJsonDocument(targetResource->data({})).toJson(QJsonDocument::JsonFormat::Indented));
+                }
                 else  ret = reply(Error, RequestI::PATCH);
                 break;
             }

@@ -171,7 +171,7 @@ int del6Addr(const QString &ifName, const QString &addrStr){
     command.append(ifName);
     FILE *fd = popen(command.toStdString().c_str(), "r");
     QTextStream out(fd, QIODevice::ReadOnly);
-    qDebug() << "file" << out.readAll();
+//    qDebug() << "file" << out.readAll();
     if(!out.readAll().isEmpty()) return -1;
     pclose(fd);
     return 0;

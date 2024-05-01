@@ -27,7 +27,6 @@ void SerialManager::readNew()
 
     newData.remove('\n');
     newData.remove('\r');
-    qDebug()  << "new serial data" << newData;
     lineToSerial(newData);
     if(newData.isEmpty()) return;
 
@@ -37,7 +36,6 @@ void SerialManager::readNew()
             QTextStream strBuf(&out, QIODevice::WriteOnly);
             strBuf << it.key() << ":" << it.value()() << '\n';
             lineToSerial(out);
-            qDebug() << out;
         }
         return;
     }

@@ -23,16 +23,26 @@ public:
             return "HTTP/1.1 200 Ok\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n";
             break;
         case NoAuth:
-            return "HTTP/1.1 401 Unauthorized\r\nWWW-Authenticate: Basic realm=\"server\"\r\n\r\n";
+            return "HTTP/1.1 401 Unauthorized\r\n"
+                   "WWW-Authenticate: Basic realm=\"server\"\r\n"
+                   "Content-Type: text/html\r\n\r\n"
+                   "401 Unauthorized\r\n";
             break;
         case NotFound:
-            return "HTTP/1.1 404 Not Found\r\n\r\n";
+            return "HTTP/1.1 404 Not Found\r\n"
+                   "Content-Type: text/html\r\n\r\n"
+                   "404 Not Found\r\n";
             break;
         case Error:
-            return "HTTP/1.1 500 Internal Server Error\r\n\r\n";
+            return "HTTP/1.1 500 Internal Server Error\r\n"
+                   "Content-Type: text/html\r\n\r\n"
+                   "500 Internal Server Error\r\n";
             break;
         case NoImplement:
-            return "HTTP/1.1 501 Not Implementedr\n\r\n";
+        default:
+            return "HTTP/1.1 501 Not Implemented\r\n"
+                   "Content-Type: text/html\r\n\r\n"
+                   "501 Not Implemented\r\n";
             break;
         }
     }

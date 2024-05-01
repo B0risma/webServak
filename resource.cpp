@@ -101,7 +101,6 @@ QJsonObject Date::data(const QJsonObject &requestData) const
 
 bool Date::setData(const QJsonObject &data)
 {
-    qDebug() << "Date::setData" << data;
     if(data.contains("date")){
         return setTime(data["date"].toString());
     }

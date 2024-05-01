@@ -30,7 +30,7 @@ public:
     QMap<QString, QSharedPointer<Resource>> subResources;
 
     virtual QJsonObject data(const QJsonObject& requestData) const;
-    virtual bool setData(const QJsonObject &data){}
+    virtual bool setData(const QJsonObject &data){return false;}
 };
 
 class Date : public Resource{
