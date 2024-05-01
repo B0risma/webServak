@@ -11,11 +11,7 @@ public:
         NotFound = 0,
         Ok=1,
     };
-    WebManager(/*QWeakPointer<Resource> targetRes*/) {
-//        auto newRes = new Resource;
-//        *newRes= *(targetRes.toStrongRef());
-//        rootResource.reset(newRes);
-    }
+    WebManager() {}
     constexpr const char* reply(const ReplyStat &stat, const RequestI::Method method) const{
         switch(stat){
         case Ok:
@@ -28,8 +24,6 @@ public:
         }
     }
     QString processRequest(const RequestI &request);
-
-
     QSharedPointer<Resource> rootResource;
 };
 

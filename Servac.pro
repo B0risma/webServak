@@ -10,6 +10,7 @@ CONFIG -= app_bundle
 
 SOURCES += \
         interfaces.cpp \
+        logger.cpp \
         main.cpp \
         requesti.cpp \
         resource.cpp \
@@ -24,6 +25,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     interfaces.h \
+    logger.h \
     requesti.h \
     resource.h \
     serialmanager.h \

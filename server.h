@@ -2,6 +2,7 @@
 #include "resource.h"
 #include "webmanager.h"
 #include "serialmanager.h"
+#include "logger.h"
 
 #include <QTcpServer>
 
@@ -16,5 +17,6 @@ private:
     void onNewConnection();
     Resource * fillResources();
     WebManager manager;
+    Logger *httpLogger;
 };
 

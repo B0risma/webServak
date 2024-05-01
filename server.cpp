@@ -17,18 +17,26 @@ Server::Server(QObject *parent)
     connect(this, &Server::newConnection, this, &Server::onNewConnection);
     listen(QHostAddress::Any, 8001);
     manager.rootResource.reset(fillResources());
+
+    httpLogger = new Logger(this, "http");
+    *httpLogger << "ServerStarted";
 }
 
 void Server::onNewConnection()
 {
     QTcpSocket *newClient = nextPendingConnection();
     newClient->waitForReadyRead();
-    RequestI req(newClient->readAll());
+    const auto received = newClient->readAll();
+    RequestI req(received);
     qDebug() << req.toString() << req.URI;
     QTextStream os(newClient);
     os.setAutoDetectUnicode(true);
-    os << manager.processRequest(req);
+    const QString& reply = manager.processRequest(req);
+    os << reply;
     newClient->close();
+    *httpLogger << "request" << received;
+    *httpLogger << "reply" << reply;
+
 }
 
 void Server::sendAck()
